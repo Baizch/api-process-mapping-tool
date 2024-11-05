@@ -1,12 +1,13 @@
-import express from 'express';
+import express, { Application } from 'express';
+import areaRoutes from './routes/areaRoutes';
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app: Application = express();
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('API is running');
-});
+app.use('/api/areas', areaRoutes);
+
+const PORT: number = parseInt(process.env.PORT as string, 10) || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
