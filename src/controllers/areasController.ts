@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as areaService from '../services/areaService';
+import * as areaService from '../services/areasService';
 import { Area } from '../types';
 
 export const createArea = async (
@@ -11,6 +11,7 @@ export const createArea = async (
     const area = await areaService.createArea(name);
     res.status(201).json(area);
   } catch (error: unknown) {
+    console.log(error);
     res.status(500).json({ error: 'Failed to create area' });
   }
 };
