@@ -12,23 +12,9 @@ export interface Process {
   parentId?: number | null;
   parent?: Process | null;
   subprocesses?: Process[] | null;
-  tools?: Tool[] | null;
-  responsibleId?: number | null;
-  responsible?: User | null;
+  tools?: string[] | null;
+  responsible?: string | null;
   documentation?: string | null;
   type: string;
   status: string;
-}
-
-export interface Tool {
-  id: number;
-  name: string;
-  description?: string;
-}
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  processes?: Process[];
 }

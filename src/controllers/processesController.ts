@@ -100,11 +100,7 @@ export const deleteProcess = async (
       return res.status(400).json({ message: 'ID must be a number' });
     }
 
-    const deletedProcess = await processService.deleteProcess(processId);
-
-    if (!deletedProcess) {
-      return res.status(404).json({ message: 'Process not found' });
-    }
+    await processService.deleteProcess(processId);
 
     return res.status(204).send();
   } catch (error: unknown) {

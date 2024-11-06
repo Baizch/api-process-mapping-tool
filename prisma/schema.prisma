@@ -30,28 +30,11 @@ model Process {
   parentId        Int?
   parent          Process?  @relation("ProcessHierarchy", fields: [parentId], references: [id])
   subprocesses    Process[] @relation("ProcessHierarchy")
-  tools           Tool[]    @relation("ProcessTools")
-  responsibleId   Int?
-  responsible     User?     @relation("UserProcesses", fields: [responsibleId], references: [id])
+  tools           String[]
+  responsible     String?
   documentation   String?
   type            String    @default("manual")
   status          String    @default("active")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-}
-
-model Tool {
-  id         Int       @id @default(autoincrement())
-  name       String
-  processes  Process[] @relation("ProcessTools")
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-}
-
-model User {
-  id         Int       @id @default(autoincrement())
-  name       String
-  email      String    @unique
-  processes  Process[] @relation("UserProcesses")
-  createdAt  DateTime  @default(now())
 }

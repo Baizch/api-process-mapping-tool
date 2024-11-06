@@ -8,7 +8,7 @@ export const createProcess = async (processData: Process): Promise<Process> => {
     areaId,
     parentId,
     tools,
-    responsibleId,
+    responsible,
     documentation,
     type,
     status,
@@ -20,19 +20,14 @@ export const createProcess = async (processData: Process): Promise<Process> => {
       description,
       areaId,
       parentId,
-      responsibleId,
+      responsible,
       documentation,
       type,
       status,
-      tools: {
-        connect: tools?.map((tool) => ({ id: tool.id })) ?? [],
-      },
-    },
-    include: {
-      tools: true,
-      responsible: true,
+      tools: tools ?? undefined,
     },
   });
+
   return newProcess;
 };
 
@@ -75,18 +70,11 @@ export const updateProcess = async (
   id: number,
   processData: Partial<Process>
 ): Promise<Process> => {
-  const dataToUpdate = {
+  const dataToUpdate: any = {
     ...processData,
-    tools: processData.tools
-      ? { set: [], connect: processData.tools.map((tool) => ({ id: tool.id })) }
-      : undefined,
-    subprocesses: processData.subprocesses
-      ? {
-          connect: processData.subprocesses.map((subprocess) => ({
-            id: subprocess.id,
-          })),
-        }
-      : undefined,
+    tools: processData.tools ?? undefined,
+    responsible: processData.responsible ?? undefined,
+    documentation: processData.documentation ?? undefined,
   };
 
   const filteredData = Object.fromEntries(
@@ -96,26 +84,38 @@ export const updateProcess = async (
   const updatedProcess = await prisma.process.update({
     where: { id },
     data: filteredData,
-    include: {
-      tools: true,
-      subprocesses: true,
-      responsible: true,
-      area: true,
-      parent: true,
-    },
   });
 
   return updatedProcess;
 };
 
-export const deleteProcess = async (id: number): Promise<Process> => {
-  const deletedProcess = await prisma.process.delete({
+export const deleteProcess = async (id: number): Promise<void> => {
+  const process = await prisma.process.findUnique({
     where: { id },
     include: {
-      tools: true,
-      responsible: true,
+      subprocesses: true,
     },
   });
 
-  return deletedProcess;
+  if (!process) {
+    throw new Error('Process not found');
+  }
+
+  await deleteProcessAndSubprocesses(id);
+};
+
+const deleteProcessAndSubprocesses = async (
+  processId: number
+): Promise<void> => {
+  const subprocesses = await prisma.process.findMany({
+    where: { parentId: processId },
+  });
+
+  for (const subprocess of subprocesses) {
+    await deleteProcessAndSubprocesses(subprocess.id);
+  }
+
+  await prisma.process.delete({
+    where: { id: processId },
+  });
 };
